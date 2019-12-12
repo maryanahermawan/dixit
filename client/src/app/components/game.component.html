@@ -1,0 +1,36 @@
+<div class="p-grid" *ngIf="players < NUM_PLAYER">
+    <h5>Hi, {{players}} player(s) in the game... We need 3 players ^.^</h5>
+</div>
+<div class="p-grid">
+    <div class="p-col-5">
+        <h5 *ngIf="!game.story&&(playerId == game?.storyTeller)">Welcome Player{{playerId}}, You're the storyteller!</h5>
+        <h5 *ngIf="!game.story&&(playerId != game?.storyTeller)">Welcome Player{{playerId}}, Wait for a story!</h5>
+        <h5 *ngIf="game.story">Welcome Player{{playerId}}, The story is:</h5>
+    </div>
+    <div class="p-col-5">
+        <form *ngIf="!game?.story&&(playerId == game?.storyTeller)" [formGroup]="myForm" (ngSubmit)="submitStory()">
+            <input type="text" name="story" placeholder="Tell a story.." [formControl]="story">
+            <button [disabled]="playerId != game?.storyTeller" type="submit">Send story</button>
+        </form>
+        <h5>{{story?.value}}</h5>
+    </div>
+    <div class="p-col-2">
+        <h5>Score: {{game?.playerAsset[playerId].score}}</h5>
+    </div>
+</div>
+<div class="p-grid p-justify-center" *ngIf="!game?.playerAsset[playerId].guessCard">
+    <div class="p-md-2 p-col-2" *ngFor="let card of activeCards" (click)="chooseGuessCard(card)">
+        <img style="width:100%; height:100%" src="/api/image/{{card}}" alt="{{card}}">
+    </div>
+</div>
+<div class="p-grid p-justify-center" *ngIf="!!game?.playerAsset[playerId].guessCard">
+    <div class="p-md-2 p-col-2">
+        <img style="width:100%; height:100%" src="/api/image/{{game.playerAsset[playerId].guessCard}}" alt="{{card}}">
+    </div>
+</div>
+<div class="p-grid p-justify-center">
+    <div class="p-md-2 p-col-2" *ngFor="let card of game?.playerAsset[playerId].poolCards"
+        (click)="chooseActiveCards(card)">
+        <img style="width: 100%; height: 100%;" src="/api/image/{{card}}" alt="{{card}}">
+    </div>
+</div>

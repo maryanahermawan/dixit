@@ -1,0 +1,20 @@
+<p-dataView [value]="groups">
+    <ng-template let-group pTemplate="listItem">
+        <div class="ui-g-12 ng-star-inserted" style="float: left; box-sizing: border-box; padding: 0.5em">
+            <div class="group-details">
+                <div style="display: flex;align-items: center;">
+                    <!-- <img src="assets/assets/images//group/{{group.group_name}}.png"> -->
+                    <img src="assets/images/icon.png">
+                    <div class="ui-g">
+                        <div class="ui-g-12">Group Name: <b>{{group.group_name}}</b></div>
+                        <div class="ui-g-12">Top score: <b>Top score</b></div>
+                        <div class="ui-g-12">Number of players: <b>No of members</b></div>
+                    </div>
+                </div>
+                <!-- <button pButton type="button" icon="pi pi-users" (click)="selectGroup($event, group)"></button> -->
+                <button pButton type="button" icon="pi pi-users" (click)="goToGroupWaiting(group)"></button>
+            </div>
+        </div>
+    </ng-template>
+
+</p-dataView>
