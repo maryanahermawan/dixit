@@ -3,9 +3,10 @@
 </div>
 <div class="p-grid">
     <div class="p-col-5">
-        <h5 *ngIf="!game.story&&(playerId == game?.storyTeller)">Welcome Player{{playerId}}, You're the storyteller!</h5>
-        <h5 *ngIf="!game.story&&(playerId != game?.storyTeller)">Welcome Player{{playerId}}, Wait for a story!</h5>
-        <h5 *ngIf="game.story">Welcome Player{{playerId}}, The story is:</h5>
+        <h5 *ngIf="!game?.story&&(playerId == game?.storyTeller)">Welcome Player{{playerId}}, You're the storyteller!
+        </h5>
+        <h5 *ngIf="!game?.story&&(playerId != game?.storyTeller)">Welcome Player{{playerId}}, Wait for a story!</h5>
+        <h5 *ngIf="game?.story">Welcome Player{{playerId}}, The story is:</h5>
     </div>
     <div class="p-col-5">
         <form *ngIf="!game?.story&&(playerId == game?.storyTeller)" [formGroup]="myForm" (ngSubmit)="submitStory()">
@@ -20,12 +21,14 @@
 </div>
 <div class="p-grid p-justify-center" *ngIf="!game?.playerAsset[playerId].guessCard">
     <div class="p-md-2 p-col-2" *ngFor="let card of activeCards" (click)="chooseGuessCard(card)">
-        <img style="width:100%; height:100%" src="/api/image/{{card}}" alt="{{card}}">
+        <img *ngIf="!hidden" style="width:100%; height:100%" src="/api/image/{{card}}" alt="{{card}}">
+        <img *ngIf="hidden" style="width:100%; height:100%" src="./assets/images/cover.JPG" alt="cover card">
     </div>
 </div>
 <div class="p-grid p-justify-center" *ngIf="!!game?.playerAsset[playerId].guessCard">
     <div class="p-md-2 p-col-2">
-        <img style="width:100%; height:100%" src="/api/image/{{game.playerAsset[playerId].guessCard}}" alt="{{card}}">
+        <img style="width:100%; height:100%" src="/api/image/{{game.playerAsset[playerId].guessCard}}"
+            alt="{{game.playerAsset[playerId].guessCard}}">
     </div>
 </div>
 <div class="p-grid p-justify-center">

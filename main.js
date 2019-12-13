@@ -72,6 +72,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('tiny'));
+app.use(express.static(__dirname + '/public'));
 
 let usedCards = [];
 let games = [];
@@ -106,7 +107,6 @@ app.use(passport.initialize())
 
 app.get('/status/:code',
     (req, resp) => {
-        // need to do a little more checking
         resp.status(parseInt(req.params.code)).json({ message: 'incorrect login' })
     }
 )
@@ -117,9 +117,7 @@ app.post('/pusher/auth', function (req, res) {
     var presenceData = {
         user_id: crypto.randomBytes(16).toString("hex")
     };
-    // console.log('CHANNEL is', channel)
     var auth = pusher.authenticate(socketId, channel, presenceData);
-    // console.log("auth is", auth)
     res.send(auth);
 });
 
@@ -210,7 +208,7 @@ app.get('/game/card/active/:gameId/:playerId/:cardId', (req, resp) => {
 
     pusher.trigger(`presence-${gameId}`, 'server-fire', JSON.stringify(
         {
-            game: games[gameIndex] //temp only have one game
+            game: games[gameIndex]
         }
     ));
 
@@ -291,7 +289,7 @@ app.get('/game/card/guess/:gameId/:playerId/:cardId', (req, resp) => {
 
     pusher.trigger(`presence-${gameId}`, 'server-fire', JSON.stringify(
         {
-            game: games[gameIndex], //temp only have one game
+            game: games[gameIndex],
             message: 'round completed',
         }
     ));

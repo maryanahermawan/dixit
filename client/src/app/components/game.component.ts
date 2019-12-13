@@ -3,29 +3,9 @@ import { FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router';
 import { Game } from '../models';
 import { GameService } from '../services/game.service';
-
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
-  animations: [
-    trigger('animation', [
-      state('visible', style({
-        transform: 'translateX(0)',
-        opacity: 1
-      })),
-      transition('void => *', [
-        style({ transform: 'translateX(50%)', opacity: 0 }),
-        animate('300ms ease-out')
-      ]),
-      transition('* => void', [
-        animate(('250ms ease-in'), style({
-          height: 0,
-          opacity: 0,
-          transform: 'translateX(50%)'
-        }))
-      ])
-    ])
-  ],
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
@@ -37,6 +17,7 @@ export class GameComponent implements OnInit {
   gameId: string;
   storyTeller: number = 0;
   playerId: number = 0;
+  hidden: boolean = true;
 
   activeCards: number[] = [];
 
@@ -84,10 +65,8 @@ export class GameComponent implements OnInit {
     if (this.cannotActivateCard()) { return; }
     this.gameService.chooseActiveCard(this.gameId, this.playerId, cardId)
       .then(result => {
-
       })
       .catch(error => {
-
       })
 
     return this;
@@ -97,10 +76,8 @@ export class GameComponent implements OnInit {
     if (this.cannotGuessCard()) { return; }
     this.gameService.chooseGuessCard(this.gameId, this.playerId, cardId)
       .then(result => {
-
       })
       .catch(error => {
-
       })
     return this;
   }
@@ -116,17 +93,20 @@ export class GameComponent implements OnInit {
       this.activeCards = tempArray;
 
       if (this.activeCards.length == this.NUM_PLAYER) {
+        console.log('shuffling');
         this.shuffleCard(this.activeCards);
-        //this.revealActiveCard = true;
+        this.shuffleCard(this.activeCards);
+        //Reveal cards
+        this.hidden = false;
       }
 
       this.game = obj.game; //update the game
       this.storyTeller = obj.game.storyTeller;
       this.story.setValue(obj.game.story);
 
-      // if (obj?.message == 'round completed') {
-
-      // }
+      if (this.activeCards.length == 0) {
+        this.hidden = true;
+      }
 
       console.log('LISTEN FOR CHANGE: updated game is', this.game);
       console.log('storyTeller >', this.storyTeller);

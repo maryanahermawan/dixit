@@ -15,6 +15,7 @@ import { GroupListComponent } from './components/group-list.component';
 import { DataViewModule } from 'primeng/dataview';
 import { GroupWaitingComponent } from './components/group-waiting.component';
 import { SignUpComponent } from './components/sign-up.component';
+import { TransitionGroupComponent, TransitionGroupItemDirective } from './components/transition-group.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -22,7 +23,8 @@ import { SignUpComponent } from './components/sign-up.component';
     LoginComponent,
     GroupListComponent,
     GroupWaitingComponent,
-    SignUpComponent
+    SignUpComponent,
+    TransitionGroupComponent, TransitionGroupItemDirective
   ],
   imports: [
     BrowserModule,
