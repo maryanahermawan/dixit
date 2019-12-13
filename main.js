@@ -305,33 +305,36 @@ app.get('/api/groups',
         if (!(authorization && authorization.startsWith('Bearer '))) {
             resp.status(403).json({ error: 'Forbidden' })
         }
-        console.log('jwtString', jwtString)
+        console.log('jwtString', jwtString);
+        const jwtDecoded = jwt.verify(jwtString, config.PASSPORT_SECRET);
+        req.jwt = jwtDecoded;
+        next();
 
-        conns.mongodb.db('dixit').collection('jwt')
-            .find({ jwtString: jwtString })
-            .toArray()
-            .then(result => {
-                console.log('mongo result is', result)
-                if (result.length > 0) {
-                    console.log('found in mongo', result);
-                    req.jwt = result[0].jwtDecoded;
-                    return next();
-                }
+        // conns.mongodb.db('dixit').collection('jwt')
+        //     .find({ jwtString: jwtString })
+        //     .toArray()
+        //     .then(result => {
+        //         console.log('mongo result is', result)
+        //         if (result.length > 0) {
+        //             console.log('found in mongo', result);
+        //             req.jwt = result[0].jwtDecoded;
+        //             return next();
+        //         }
 
-                //else
-                try {
-                    const jwtDecoded = jwt.verify(jwtString, config.PASSPORT_SECRET);
-                    req.jwt = jwtDecoded;
-                    conns.mongodb.db('dixit').collection('jwt').insertOne({
-                        email: jwtDecoded.sub,
-                        jwtString: jwtString,
-                        jwtDecoded: jwtDecoded
-                    })
-                        .then(result => next());
-                } catch (e) {
-                    resp.status(401).json({ error: e })
-                }
-            })
+        //         //else
+        //         try {
+        //             const jwtDecoded = jwt.verify(jwtString, config.PASSPORT_SECRET);
+        //             req.jwt = jwtDecoded;
+        //             conns.mongodb.db('dixit').collection('jwt').insertOne({
+        //                 email: jwtDecoded.sub,
+        //                 jwtString: jwtString,
+        //                 jwtDecoded: jwtDecoded
+        //             })
+        //                 .then(result => next());
+        //         } catch (e) {
+        //             resp.status(401).json({ error: e })
+        //         }
+        //     })
     },
     (req, resp) => {
         getAllGroups()

@@ -1,6 +1,6 @@
 const aws = require('aws-sdk');
 const mysql = require('mysql');
-const MongoClient = require('mongodb').MongoClient;
+// const MongoClient = require('mongodb').MongoClient;
 
 const loadConfig = (config) => {
 	return {
@@ -10,7 +10,7 @@ const loadConfig = (config) => {
 			accessKeyId: config.s3.accessKey,
 			secretAccessKey: config.s3.secret
 		}),
-		mongodb: new MongoClient(config.mongodb.url, { useUnifiedTopology: true })
+		// mongodb: new MongoClient(config.mongodb.url, { useUnifiedTopology: true })
 	}
 };
 
@@ -34,18 +34,18 @@ const testConnections = (conns) => {
 		}
 	));
 
-	p.push(new Promise(
-		(resolve, reject) => {
-			conns.mongodb.connect(
-				err => {
-					if (err)
-						return reject(err);
-					console.info('resolved mongodb');
-					resolve();
-				}
-			)
-		}
-	))
+	// p.push(new Promise(
+	// 	(resolve, reject) => {
+	// 		conns.mongodb.connect(
+	// 			err => {
+	// 				if (err)
+	// 					return reject(err);
+	// 				console.info('resolved mongodb');
+	// 				resolve();
+	// 			}
+	// 		)
+	// 	}
+	// ))
 
 	p.push(new Promise(
 		(resolve, reject) => {
