@@ -3,6 +3,8 @@ import { FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router';
 import { Game } from '../models';
 import { GameService } from '../services/game.service';
+import { environment } from '../../environments/environment.prod';
+
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
@@ -18,6 +20,7 @@ export class GameComponent implements OnInit {
   storyTeller: number = 0;
   playerId: number = 0;
   hidden: boolean = true;
+  api_url: string = environment.api_url;
 
   activeCards: number[] = [];
 

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Game } from '../models';
 import { CanActivate, Router } from '@angular/router';
+import { environment } from '../../environments/environment.prod';
 
 declare const Pusher: any;
 
@@ -15,7 +16,7 @@ export class GameService implements CanActivate {
   authenticated = false;
 
   pusher = new Pusher('32a6b9413c2f9c9ce393', {
-    authEndpoint: '/pusher/auth',
+    authEndpoint: `${environment.api_url}/pusher/auth`,
     cluster: 'ap1',
     forceTLS: true,
   });
@@ -34,7 +35,7 @@ export class GameService implements CanActivate {
   }
 
   createPlayerAsset(gameId: string, playerId: number): Promise<Game> {
-    return this.http.get<Game>(`/game/player/create/${gameId}/${playerId}`)
+    return this.http.get<Game>(`${environment.api_url}/game/player/create/${gameId}/${playerId}`)
       .toPromise();
   }
 
@@ -67,12 +68,12 @@ export class GameService implements CanActivate {
   }
 
   chooseActiveCard(gameId: string, playerId: number, cardId: number) {
-    return this.http.get(`/game/card/active/${gameId}/${playerId}/${cardId}`)
+    return this.http.get(`${environment.api_url}/game/card/active/${gameId}/${playerId}/${cardId}`)
       .toPromise();
   }
 
   chooseGuessCard(gameId: string, playerId: number, cardId: number) {
-    return this.http.get(`/game/card/guess/${gameId}/${playerId}/${cardId}`)
+    return this.http.get(`${environment.api_url}/game/card/guess/${gameId}/${playerId}/${cardId}`)
       .toPromise();
   }
 
@@ -86,12 +87,12 @@ export class GameService implements CanActivate {
 
   submitStory(gameId: string, story: string) { //only for the storyTeller
     console.log("in service story is", story);
-    return this.http.post(`/game/story/${gameId}`, { story })
+    return this.http.post(`${environment.api_url}/game/story/${gameId}`, { story })
       .toPromise();
   }
 
   guessCard(gameId: string, playerId: number, cardId: number) {
-    return this.http.get(`/game/card/vote/${gameId}/${playerId}/${cardId}`)
+    return this.http.get(`${environment.api_url}/game/card/vote/${gameId}/${playerId}/${cardId}`)
       .toPromise();
   }
 
@@ -99,7 +100,7 @@ export class GameService implements CanActivate {
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${window.localStorage.getItem('access_token')}`)
     return (
-      this.http.get('/api/groups', { headers })
+      this.http.get(`${environment.api_url}/api/groups`, { headers })
         .toPromise()
     );
   }
@@ -107,7 +108,7 @@ export class GameService implements CanActivate {
   login(formObj) {
     const headers = new HttpHeaders;
     headers.set('Content-Type', 'application/x-www-form-urlencoded');
-    return this.http.post('/authenticate', formObj, { headers })
+    return this.http.post(`${environment.api_url}/authenticate`, formObj, { headers })
       .toPromise()
       .then((result: any) => {
         console.log('raw is', result)
@@ -120,11 +121,11 @@ export class GameService implements CanActivate {
   }
 
   getGameId(groupName: string) {
-    return this.http.get(`/game/id/${groupName}`).toPromise();
+    return this.http.get(`${environment.api_url}/game/id/${groupName}`).toPromise();
   }
 
   getCardImage(cardId: number) {
-    return this.http.get(`game/card/image/${cardId}`);
+    return this.http.get(`${environment.api_url}/game/card/image/${cardId}`);
   }
 
   logout() {

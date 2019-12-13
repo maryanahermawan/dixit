@@ -8,7 +8,7 @@ import { GroupWaitingComponent } from './components/group-waiting.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
-  { path: 'game/:groupId', component: GameComponent },
+  { path: 'game/:groupId', component: GameComponent, canActivate: [GameService] },
   { path: 'groups', component: GroupListComponent, canActivate: [GameService] },
   { path: 'group-waiting-room/:groupName', component: GroupWaitingComponent },
   { path: '**', redirectTo: '/', pathMatch: 'full' },
