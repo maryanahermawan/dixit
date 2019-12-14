@@ -370,7 +370,7 @@ app.post('/authenticate',
                     access_token: token,
                 }); //send the bearer token
             })
-            .catch(err => { console.log('Error is', err) })
+            .catch(err => { resp.status(401).json({ error: err }) })
 
     })
 
