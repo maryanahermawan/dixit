@@ -73,8 +73,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('tiny'));
-app.use(['/', '/index.html'], (req, resp) => resp.sendFile(join(__dirname, 'public', 'index.html')));
-console.log('dirname is', join(__dirname, 'public', 'index.html'));
+// app.use(['/', '/index.html'], (req, resp) => resp.sendFile(join(__dirname, 'public', 'index.html')));
+// console.log('dirname is', join(__dirname, 'public', 'index.html'));
 
 let usedCards = [];
 let games = [];
