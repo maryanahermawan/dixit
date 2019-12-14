@@ -131,5 +131,6 @@ export class GameService implements CanActivate {
   logout() {
     //   Remove data
     window.localStorage.removeItem('access_token');
+    this.authenticated = false;
   }
 }

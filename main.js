@@ -9,6 +9,7 @@ const fs = require('fs');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const hbs = require('express-handlebars');
 const NUM_POOL = 6;
 const NUM_CARDS = 50;
 
@@ -75,10 +76,13 @@ const getGroupIdByGroupName = db.mkQueryFromPool(db.mkQuery(GET_GROUP_ID_BY_GROU
 // on gr.group_id = m.group_id join users as u on m.email = u.email`;
 const GET_ALL_GROUPS = `select group_id, group_name from gameGroups`;
 const getAllGroups = db.mkQueryFromPool(db.mkQuery(GET_ALL_GROUPS), conns.mysql);
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('tiny'));
+app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));
+app.set('view engine', 'hbs')
 
 let usedCards = [];
 let games = [];
@@ -388,7 +392,18 @@ app.get('/api/image/:cardId', (req, resp) => {
         if (err) {
             return resp.status(500).json({ error: err });
         }
-        resp.redirect(301, `https://jedimadawan.sgp1.digitaloceanspaces.com/dixit/${req.params.cardId}.jpg`);
+        resp.format({
+            'application/json': () => {
+                resp.redirect(301, `https://jedimadawan.sgp1.digitaloceanspaces.com/dixit/${req.params.cardId}.jpg`);
+            },
+            'text/html': () => {
+                resp.status(200).render('card', { imageUrl: `https://jedimadawan.sgp1.digitaloceanspaces.com/dixit/${req.params.cardId}.jpg` })
+            },
+            'default': () => {
+                resp.status(406).end();
+            }
+        })
+
     })
 })
 
