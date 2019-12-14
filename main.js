@@ -1,3 +1,4 @@
+const { join } = require('path');
 const morgan = require('morgan');
 const express = require('express');
 const Pusher = require('pusher');
@@ -72,7 +73,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('tiny'));
-app.use(express.static(__dirname + '/public'));
+app.use(['/', '/index.html'], (req, resp) => resp.sendFile(join(__dirname, 'public', 'index.html')));
+console.log('dirname is', join(__dirname, 'public', 'index.html'));
 
 let usedCards = [];
 let games = [];
@@ -385,6 +387,8 @@ app.get('/api/image/:cardId', (req, resp) => {
         resp.redirect(301, `https://jedimadawan.sgp1.digitaloceanspaces.com/dixit/${req.params.cardId}.jpg`);
     })
 })
+
+app.use(express.static(join(__dirname, 'public')));
 
 testConnections(conns)
     .then(() => {
