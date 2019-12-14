@@ -25,7 +25,7 @@ if (fs.existsSync(ALL_CONFIG)) {
             port: process.env.DB_PORT,
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
-            database: 'music',
+            database: 'dixit',
             connectionLimit: 4,
             ssl: {
                 ca: process.env.DB_CA
@@ -37,7 +37,13 @@ if (fs.existsSync(ALL_CONFIG)) {
         },
         mongodb: {
             url: process.env.MONGODB_URL,
-        }
+        },
+        pusher: {
+            PUSHER_APPID: process.env.PUSHER_APPID,
+            PUSHER_KEY: process.env.PUSHER_KEY,
+            PUSHER_SECRET: process.env.PUSHER_SECRET,
+        },
+        PASSPORT_SECRET: process.env.PASSPORT_SECRET,
     }
 }
 
