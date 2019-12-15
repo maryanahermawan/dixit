@@ -75,14 +75,16 @@ const getUserDetails = db.mkQueryFromPool(db.mkQuery(GET_USER_DETAILS), conns.my
 const GET_GROUP_ID_BY_GROUP_NAME = `SELECT group_id FROM dixit.gameGroups where group_name = ?`;
 const getGroupIdByGroupName = db.mkQueryFromPool(db.mkQuery(GET_GROUP_ID_BY_GROUP_NAME), conns.mysql);
 
-// const GET_ALL_GROUPS = `SELECT gr.group_name, u.username, u.email from gameGroups as gr join membershipDetails as m 
-// on gr.group_id = m.group_id join users as u on m.email = u.email`;
+const GET_USERS_BY_GROUP_NAME = `SELECT gr.group_name, u.username, u.email from gameGroups as gr join membershipDetails as m on gr.group_id = m.group_id join users as u on m.email = u.email where gr.group_name = ?`;
+const getUsersByGroupName = db.mkQueryFromPool(db.mkQuery(GET_USERS_BY_GROUP_NAME), conns.mysql);
 const GET_ALL_GROUPS = `select group_id, group_name from gameGroups`;
 const getAllGroups = db.mkQueryFromPool(db.mkQuery(GET_ALL_GROUPS), conns.mysql);
 const CREATE_USER = `INSERT INTO users(username, email, password) VALUES (?, ?, sha2(?, 256))`;
 const createUser = db.mkQueryFromPool(db.mkQuery(CREATE_USER), conns.mysql);
 const GET_GROUP_PIC_FILE = `select picture_file from gameGroups where group_name=?`;
 const getGroupProfilePicName = db.mkQueryFromPool(db.mkQuery(GET_GROUP_PIC_FILE), conns.mysql);
+const ADD_PLAYER_BY_GROUP_ID = `INSERT INTO membershipDetails(group_id, email) VALUES (?,?)`;
+const addPlayerByGroupId = db.mkQueryFromPool(db.mkQuery(ADD_PLAYER_BY_GROUP_ID), conns.mysql);
 
 const CREATE_GROUP = `INSERT INTO gameGroups(group_name, group_id, created, picture_file) VALUES (?, ?, localtime(), ?)`;
 const createGroup = db.mkQuery(CREATE_GROUP);
@@ -103,7 +105,6 @@ const isValidUser = (param) => { //return a boolean
         .catch(err => { })
     )
 }
-
 
 const getUniqueId = () => {
     return Math.random().toString(36).substr(2, 8);
@@ -132,7 +133,7 @@ app.use(passport.initialize())
 
 app.get('/status/:code',
     (req, resp) => {
-        resp.status(parseInt(req.params.code)).json({ message: 'incorrect login' })
+        resp.status(parseInt(req.params.code)).json({ message: `error code ${req.params.code}` })
     }
 )
 
@@ -199,7 +200,6 @@ app.get('/game/id/:groupName', (req, resp) => { //if authenticated(TBD), give an
         .catch(err => {
             resp.status(400).json({ err })
         })
-    // return Math.random().toString(36).substr(2, 8);
 })
 
 app.post('/game/story/:gameId', (req, resp) => {
@@ -425,7 +425,7 @@ app.get('/api/image/:cardId', (req, resp) => {
     })
 })
 
-app.get('/api/allGroupNames', (req, resp, next) => {
+app.get('/api/allGroupNames', (req, resp, next) => { //drop down menu options
     request.get({ uri: 'https://swapi.co/api/vehicles', json: true })
         .then(result => {
             const resultArray = result.results;
@@ -500,7 +500,7 @@ app.get('/api/group-profile', (req, resp) => {
     getGroupProfilePicName([queryParam])
         .then(result => {
             const filename = result[0].picture_file;
-            
+
             const s3params = {
                 Bucket: 'jedimadawan',
                 Key: `dixit/group_profile/${filename}`,
@@ -514,6 +514,25 @@ app.get('/api/group-profile', (req, resp) => {
             })
         })
         .catch(err => resp.status(500).json({ error: err }))
+})
+
+app.get('/api/users-of-group/:groupName', (req, resp) => {
+    getUsersByGroupName([req.params.groupName])
+        .then(result => {
+            resp.status(200).json(result);
+        })
+        .catch(err => { resp.status(500).json({ error: err }) })
+})
+
+app.put('/api/update-group/:groupId', express.json(), (req, resp) => {
+    addPlayerByGroupId([req.params.groupId, req.body.email])
+        .then(result => {
+            return getUsersByGroupName([req.body.groupName])
+        })
+        .then(result => {
+            resp.status(200).json(result);
+        })
+        .catch(err => { console.log(err) })
 })
 
 app.use(express.static(join(__dirname, 'public')));

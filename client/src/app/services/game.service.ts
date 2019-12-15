@@ -129,7 +129,7 @@ export class GameService implements CanActivate {
     return this.http.get(`${environment.api_url}/game/id/${groupName}`).toPromise();
   }
 
-  getGroupNames() {
+  getGroupNames() { //drop down menu options
     return this.http.get(`${environment.api_url}/api/allGroupNames`).toPromise();
   }
 
@@ -146,6 +146,15 @@ export class GameService implements CanActivate {
       formData.append(key, value);
     }
     return formData;
+  }
+
+  getPlayersOfGroup(groupName: string) {
+    return this.http.get(`${environment.api_url}/api/users-of-group/${groupName}`)
+      .toPromise();
+  }
+
+  joinGroup(groupId: string, groupName: string, email: string) {
+    return this.http.put<any>(`${environment.api_url}/api/update-group/${groupId}`, { groupName, email }).toPromise();
   }
 
   logout() {

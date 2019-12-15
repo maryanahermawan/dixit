@@ -1,1 +1,22 @@
-<button (click)=startGame()>Start game!</button>
+<p-dataView [value]="members">
+    <p-header>
+        <button pButton type="button" icon="pi pi-user-plus" label="Join group" [disabled]="cannotJoinGroup()" (click)="joinGroup()"></button>
+    </p-header>
+    <ng-template let-member pTemplate="listItem">
+        <div class="ui-g-12 ng-star-inserted" style="float: left; box-sizing: border-box; padding: 0.5em">
+            <div class="member-details">
+                <button pButton type="button" icon="pi pi-trash" [disabled]="cannotTakeAction(member.email)" (click)="removePlayer(member.email)"></button>
+
+                <div style="display: flex;align-items: center;">
+                    <div class="ui-g">
+                        <div class="ui-g-12">Username: <b>{{member.username}}</b></div>
+                        <div class="ui-g-12">Email: <b>{{member.email}}</b></div>
+                    </div>
+                </div>
+
+                <button pButton (click)="startGame()" type="button" icon="pi pi-chevron-right"
+                    label="Start Game" [disabled]="cannotTakeAction(member.email)"></button>
+            </div>
+        </div>
+    </ng-template>
+</p-dataView>
