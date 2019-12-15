@@ -12,6 +12,7 @@ const cors = require('cors');
 const hbs = require('express-handlebars');
 const request = require('request-promise');
 const multer = require('multer');
+
 const upload = multer({ dest: __dirname + '/tmp' });
 const NUM_POOL = 6;
 const NUM_CARDS = 50;
@@ -48,9 +49,10 @@ if (fs.existsSync(ALL_CONFIG)) {
             PUSHER_SECRET: process.env.PUSHER_SECRET,
         },
         PASSPORT_SECRET: process.env.PASSPORT_SECRET,
+        STRIPE_KEY: process.env.STRIPE_KEY,
     }
 }
-
+var stripe = require('stripe')(config.STRIPE_KEY);
 var pusher = new Pusher({
     appId: config.pusher.PUSHER_APPID,
     key: config.pusher.PUSHER_KEY,
@@ -100,6 +102,7 @@ app.set('view engine', 'hbs')
 
 let usedCards = [];
 let games = [];
+let stripeSessionObj;
 
 const isValidUser = (param) => { //return a boolean
     return (searchUser(param)
@@ -381,7 +384,7 @@ app.post('/authenticate',
                     sub: req.user,
                     iss: 'ng-dixit',
                     iat: d.getTime() / 1000, //to seconds
-                    exp: d.getTime() / 1000 + (60 * 60), //60 mins
+                    exp: d.getTime() / 1000 + (120 * 60), //120 mins
                     data: {
                         username: result[0].username,
                     }
@@ -546,6 +549,43 @@ app.delete('/api/delete-player/:groupId/:email', (req, resp) => {
             resp.status(200).json({});
         })
         .catch(err => { console.log(err) })
+})
+
+// Payment
+// You can create a Checkout Session on your server and pass its ID to the client to begin Checkout.
+app.post('/payment', express.json(), (req, resp, next) => {
+
+    stripe.checkout.sessions.create(
+        {
+            success_url: 'https://ng-dixit.herokuapp.com/success',
+            cancel_url: 'https://ng-dixit.herokuapp.com/cancel',
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    name: 'Dixit online subscription',
+                    description: 'One-month subscription',
+                    amount: 50,
+                    currency: 'sgd',
+                    quantity: 1,
+                },
+            ],
+        },
+        function (err, session) {
+            // asynchronously called
+            console.log('stripe error', err)
+            stripeSessionObj = session;
+            resp.status(200).json({ id: session.id });
+        }
+    );
+
+    // request.post({ uri: 'https://api.stripe.com/v1/checkout/sessions', json: true, body: askForSessionObj })
+    //     .then(result => {
+    //         console.log('stripe response is', result);
+    //         resp.status(200).json({});
+    //     })
+    //     .catch(err => {
+    //         resp.status(500).json({ error: err })
+    //     })
 })
 
 app.use(express.static(join(__dirname, 'public')));

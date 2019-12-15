@@ -1,9 +1,10 @@
 <div style="background-color: orange; display: grid;  grid-template-columns: 1fr 3fr 1fr;
 justify-items: center;">
     <div><img class="logo" src="assets/images/dixit_transparent.png" style="width: 90px;" /></div>
-    <div>
-    </div>
+  
     <div *ngIf="authenticated"><i class="pi pi-sign-out" style="font-size: 2.5em; color: #6b5b95"
             (click)="logout()"></i></div>
+    <div *ngIf="true"><i class="pi pi-money-bill" style="font-size: 2.5em; color: #6b5b95"
+        [routerLink]="['payment']"></i></div>
 </div>
 <router-outlet></router-outlet>
