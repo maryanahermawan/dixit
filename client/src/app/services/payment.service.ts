@@ -13,8 +13,8 @@ export class PaymentService {
 
   stripe = Stripe('pk_test_FTYZKeYyfLlI43nwY6stdcgI00HRuJDDMa')
 
-  makePayment() {
-    this.http.post(`${environment.api_url}/payment`, {}).toPromise()
+  makePayment(paymentObj) {
+    this.http.post(`${environment.api_url}/payment`, { paymentObj }).toPromise()
       .then((result: any) => {
         console.log('id obtained', result.id)
         return this.stripe.redirectToCheckout({

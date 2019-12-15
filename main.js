@@ -554,19 +554,19 @@ app.delete('/api/delete-player/:groupId/:email', (req, resp) => {
 // Payment
 // You can create a Checkout Session on your server and pass its ID to the client to begin Checkout.
 app.post('/payment', express.json(), (req, resp, next) => {
-
+    console.log('req body for stripe', typeof req.body.paymentObj.amount);
     stripe.checkout.sessions.create(
         {
-            success_url: 'https://ng-dixit.herokuapp.com/success',
-            cancel_url: 'https://ng-dixit.herokuapp.com/cancel',
+            success_url: 'https://ng-dixit.herokuapp.com/#/success',
+            cancel_url: 'https://ng-dixit.herokuapp.com/#/cancel',
             payment_method_types: ['card'],
             line_items: [
                 {
                     name: 'Dixit online subscription',
-                    description: 'One-month subscription',
-                    amount: 50,
+                    description: req.body.paymentObj.description,
+                    amount: req.body.paymentObj.amount,
                     currency: 'sgd',
-                    quantity: 1,
+                    quantity: req.body.paymentObj.quantity,
                 },
             ],
         },

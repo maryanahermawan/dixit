@@ -1,30 +1,20 @@
 <form [formGroup]="payForm" (ngSubmit)="payment()">
     <div class="ui-g ui-fluid">
+        <h5>Subscribe to dixit online for $1 a month or $10 a year!</h5>
+
         <div class="ui-g-12 ui-md-4">
-            <div class="ui-inputgroup">
-                <input type="text" pInputText placeholder="Payment for.." formControlName="name">
-            </div>
+            <p-dropdown [options]="descriptions" optionLabel="d" formControlName="description" placeholder="Description"
+                [showClear]="true"></p-dropdown>
         </div>
 
         <div class="ui-g-12 ui-md-4">
-            <div class="ui-inputgroup">
-                <input type="text" pInputText placeholder="Decription" formControlName="description">
-            </div>
+            <p-dropdown [options]="quantities" optionLabel="qy" formControlName="quantity" placeholder="Quantity"
+                [showClear]="true"></p-dropdown>
         </div>
 
-        <div class="ui-g-12 ui-md-4">
-            <div class="ui-inputgroup">
-                <input type="text" pInputText placeholder="Amount in SGD" formControlName="amount">
-            </div>
-        </div>
-
-        <div class="ui-g-12 ui-md-4">
-            <div class="ui-inputgroup">
-                <input type="text" pInputText placeholder="Quantity" formControlName="quantity">
-            </div>
-        </div>
         <div class="ui-g-12 ui-md-12"></div>
         <div class="ui-g-12 ui-md-12"></div>
-        <button class="ui-g-12 ui-md-4" pButton type="submit" [disabled]=payForm.invalid label="Make payment" class="ui-button-rounded"></button>
+        <button class="ui-g-12 ui-md-4" pButton type="submit" [disabled]=payForm.invalid label="Make payment"
+            class="ui-button-rounded"></button>
     </div>
 </form>

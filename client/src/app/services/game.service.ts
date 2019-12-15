@@ -24,10 +24,9 @@ export class GameService implements CanActivate {
   constructor(private http: HttpClient, private router: Router) { }
 
   canActivate(): boolean {
-    // if (!this.authenticated)
-    //   this.router.navigate(['/login']);
-    // return (this.authenticated)
-    return true;
+    if (!this.authenticated)
+      this.router.navigate(['/login']);
+    return (this.authenticated)
   }
 
   isAuthenticated(): boolean {
