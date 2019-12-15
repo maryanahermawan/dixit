@@ -157,6 +157,10 @@ export class GameService implements CanActivate {
     return this.http.put<any>(`${environment.api_url}/api/update-group/${groupId}`, { groupName, email }).toPromise();
   }
 
+  removePlayer(email: string, groupId: string) {
+    return this.http.delete<any>(`${environment.api_url}/api/delete-player/${groupId}/${email}`).toPromise();
+  }
+
   logout() {
     //   Remove data
     window.localStorage.removeItem('access_token');

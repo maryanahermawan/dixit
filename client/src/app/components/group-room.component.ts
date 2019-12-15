@@ -49,7 +49,11 @@ export class GroupRoomComponent implements OnInit {
   }
 
   removePlayer(email: string) {
-
+    this.gameSvc.removePlayer(email, this.groupId)
+      .then((result: any) => {
+        this.members = this.members.filter(e => { return e.email != email })
+      })
+      .catch(err => { console.log('error removing member from this group', err) })
   }
 
   cannotJoinGroup() {

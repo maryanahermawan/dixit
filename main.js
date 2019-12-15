@@ -85,6 +85,8 @@ const GET_GROUP_PIC_FILE = `select picture_file from gameGroups where group_name
 const getGroupProfilePicName = db.mkQueryFromPool(db.mkQuery(GET_GROUP_PIC_FILE), conns.mysql);
 const ADD_PLAYER_BY_GROUP_ID = `INSERT INTO membershipDetails(group_id, email) VALUES (?,?)`;
 const addPlayerByGroupId = db.mkQueryFromPool(db.mkQuery(ADD_PLAYER_BY_GROUP_ID), conns.mysql);
+const DELETE_PLAYER_FROM_GROUP = `delete from membershipDetails where email=? and group_id=?`;
+const deletePlayerFromGroup = db.mkQueryFromPool(db.mkQuery(DELETE_PLAYER_FROM_GROUP), conns.mysql);
 
 const CREATE_GROUP = `INSERT INTO gameGroups(group_name, group_id, created, picture_file) VALUES (?, ?, localtime(), ?)`;
 const createGroup = db.mkQuery(CREATE_GROUP);
@@ -531,6 +533,17 @@ app.put('/api/update-group/:groupId', express.json(), (req, resp) => {
         })
         .then(result => {
             resp.status(200).json(result);
+        })
+        .catch(err => { console.log(err) })
+})
+
+app.delete('/api/delete-player/:groupId/:email', (req, resp) => {
+    deletePlayerFromGroup([req.params.email, req.params.groupId])
+        .then(result => {
+            return getUsersByGroupName([req.body.groupName])
+        })
+        .then(result => {
+            resp.status(200).json({});
         })
         .catch(err => { console.log(err) })
 })
