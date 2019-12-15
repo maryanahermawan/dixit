@@ -37,7 +37,7 @@ export class GroupRoomComponent implements OnInit {
   }
 
   startGame() {
-    this.router.navigate([`game/${this.groupId}`]);
+    this.router.navigate([`game/${this.groupId}/${this.whoami}`]);
   }
 
   joinGroup() {

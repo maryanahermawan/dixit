@@ -15,7 +15,7 @@ const routes: Routes = [
   { path: '', component: LoginComponent },
   { path: 'signup', component: SignUpComponent },
   { path: 'createGroup', component: CreateGroupComponent },
-  { path: 'game/:groupId', component: GameComponent, canActivate: [GameService] },
+  { path: 'game/:groupId/:email', component: GameComponent, canActivate: [GameService] },
   { path: 'groups', component: GroupListComponent, canActivate: [GameService] },
   { path: 'group-room/:groupName', component: GroupRoomComponent },
   { path: 'payment', component: PaymentComponent },

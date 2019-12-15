@@ -20,6 +20,7 @@ export class GameComponent implements OnInit {
   storyTeller: number = 0;
   playerId: number = 0;
   hidden: boolean = true;
+  email: string;
   api_url: string = environment.api_url;
 
   activeCards: number[] = [];
@@ -27,6 +28,8 @@ export class GameComponent implements OnInit {
   constructor(private gameService: GameService, private fb: FormBuilder, private route: ActivatedRoute) {
     this.myForm = this.fb.group({ story: ['', Validators.required] })
     this.gameId = this.route.snapshot.paramMap.get('groupId');
+    this.email = this.route.snapshot.paramMap.get('email');
+    console.log('email is', this.email);
 
     this.gameService.initPusher(this.gameId)
       .then(result => {

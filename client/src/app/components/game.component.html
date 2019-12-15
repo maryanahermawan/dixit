@@ -1,12 +1,13 @@
 <div class="p-grid" *ngIf="players < NUM_PLAYER">
-    <h5>Hi, {{players}} player(s) in the game... We need 3 players ^.^</h5>
+    <h5>Hello {{email}}, {{players}} player(s) in the game... We need 3 players to start ^.^</h5>
 </div>
+<div *ngIf="players == NUM_PLAYER">
 <div class="p-grid">
     <div class="p-col-5">
-        <h5 *ngIf="!game?.story&&(playerId == game?.storyTeller)">Welcome Player{{playerId}}, You're the storyteller!
+        <h5 *ngIf="!game?.story&&(playerId == game?.storyTeller)">Hello {{email}}, You're the storyteller!
         </h5>
-        <h5 *ngIf="!game?.story&&(playerId != game?.storyTeller)">Welcome Player{{playerId}}, Wait for a story!</h5>
-        <h5 *ngIf="game?.story">Welcome Player{{playerId}}, The story is:</h5>
+        <h5 *ngIf="!game?.story&&(playerId != game?.storyTeller)">Hello {{email}}, Wait for a story!</h5>
+        <h5 *ngIf="game?.story">Hello {{email}}, The story is:</h5>
     </div>
     <div class="p-col-5">
         <form *ngIf="!game?.story&&(playerId == game?.storyTeller)" [formGroup]="myForm" (ngSubmit)="submitStory()">
@@ -36,4 +37,5 @@
         (click)="chooseActiveCards(card)">
         <img style="width: 100%; height: 100%;" src="{{api_url}}/api/image/{{card}}" alt="{{card}}">
     </div>
+</div>
 </div>
