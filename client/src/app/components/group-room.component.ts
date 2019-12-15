@@ -3,11 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from '../services/game.service';
 
 @Component({
-  selector: 'app-group-waiting',
-  templateUrl: './group-waiting.component.html',
-  styleUrls: ['./group-waiting.component.css']
+  selector: 'app-group-room',
+  templateUrl: './group-room.component.html',
+  styleUrls: ['./group-room.component.css']
 })
-export class GroupWaitingComponent implements OnInit {
+export class GroupRoomComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private gameSvc: GameService, private router: Router) { }
   groupName: string;

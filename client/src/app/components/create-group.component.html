@@ -1,0 +1,15 @@
+<form [formGroup]="createGroupForm" (ngSubmit)="createGroup()">
+    <div class="ui-g ui-fluid">
+        <h3 class="first">Create a group</h3>
+        <p-dropdown [options]="groups" formControlName="groupName" optionLabel="name" placeholder="Group name"
+            optionLabel="name" [showClear]="true"></p-dropdown>
+        <p>Selected City: {{groupName ? groupName : 'none'}}</p>
+
+        <app-file-upload formControlName="image"></app-file-upload>
+
+        <div class="ui-g-12 ui-md-12"></div>
+        <div class="ui-g-12 ui-md-12"></div>
+        <button class="ui-g-12 ui-md-4" pButton type="submit" [disabled]=createGroupForm.invalid label="Create group"
+            class="ui-button-rounded"></button>
+    </div>
+</form>

@@ -120,12 +120,32 @@ export class GameService implements CanActivate {
       .catch(error => { })
   }
 
+  signup(formObj) {
+    return this.http.post(`${environment.api_url}/signup`, formObj)
+      .toPromise()
+  }
+
   getGameId(groupName: string) {
     return this.http.get(`${environment.api_url}/game/id/${groupName}`).toPromise();
   }
 
-  getCardImage(cardId: number) {
-    return this.http.get(`${environment.api_url}/game/card/image/${cardId}`);
+  getGroupNames() {
+    return this.http.get(`${environment.api_url}/api/allGroupNames`).toPromise();
+  }
+
+  createGroup(groupObj: any): Promise<any> {
+    const newGroupFormData = this.toFormData(groupObj);
+    return this.http.post<any>(`${environment.api_url}/api/create-group`, newGroupFormData).toPromise();
+  }
+
+  toFormData(formValue: any) {
+    const formData = new FormData();
+
+    for (const key of Object.keys(formValue)) {
+      const value = formValue[key];
+      formData.append(key, value);
+    }
+    return formData;
   }
 
   logout() {

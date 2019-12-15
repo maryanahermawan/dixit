@@ -10,6 +10,9 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const hbs = require('express-handlebars');
+const request = require('request-promise');
+const multer = require('multer');
+const upload = multer({ dest: __dirname + '/tmp' });
 const NUM_POOL = 6;
 const NUM_CARDS = 50;
 
@@ -76,6 +79,13 @@ const getGroupIdByGroupName = db.mkQueryFromPool(db.mkQuery(GET_GROUP_ID_BY_GROU
 // on gr.group_id = m.group_id join users as u on m.email = u.email`;
 const GET_ALL_GROUPS = `select group_id, group_name from gameGroups`;
 const getAllGroups = db.mkQueryFromPool(db.mkQuery(GET_ALL_GROUPS), conns.mysql);
+const CREATE_USER = `INSERT INTO users(username, email, password) VALUES (?, ?, sha2(?, 256))`;
+const createUser = db.mkQueryFromPool(db.mkQuery(CREATE_USER), conns.mysql);
+const GET_GROUP_PIC_FILE = `select picture_file from gameGroups where group_name=?`;
+const getGroupProfilePicName = db.mkQueryFromPool(db.mkQuery(GET_GROUP_PIC_FILE), conns.mysql);
+
+const CREATE_GROUP = `INSERT INTO gameGroups(group_name, group_id, created, picture_file) VALUES (?, ?, localtime(), ?)`;
+const createGroup = db.mkQuery(CREATE_GROUP);
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -92,6 +102,11 @@ const isValidUser = (param) => { //return a boolean
         .then(result => (result.length && result[0].user_count > 0))
         .catch(err => { })
     )
+}
+
+
+const getUniqueId = () => {
+    return Math.random().toString(36).substr(2, 8);
 }
 
 const LocalStrategy = require('passport-local').Strategy;
@@ -195,7 +210,7 @@ app.post('/game/story/:gameId', (req, resp) => {
     console.log('update story is', games[gameIndex]);
     pusher.trigger(`presence-${gameId}`, 'server-fire', JSON.stringify(
         {
-            game: games[gameIndex] //temp only have one game
+            game: games[gameIndex]
         }
     ));
 
@@ -208,13 +223,10 @@ app.get('/game/card/active/:gameId/:playerId/:cardId', (req, resp) => {
     const cardId = req.params.cardId;
 
     const gameIndex = games.findIndex(e => e.gameId == gameId);
-    // console.log('game index', gameIndex, 'gameId', gameId, 'game', games);
 
     games[gameIndex].playerAsset[playerId].activeCard = cardId;
-    // console.log('active card> ', games[gameIndex].playerAsset[playerId].activeCard)
 
     games[gameIndex].playerAsset[playerId].poolCards = games[gameIndex].playerAsset[playerId].poolCards.filter(e => e != cardId);
-    // console.log('pool card after taken out is', games[gameIndex].playerAsset[playerId].poolCards)
 
     pusher.trigger(`presence-${gameId}`, 'server-fire', JSON.stringify(
         {
@@ -382,12 +394,18 @@ app.post('/authenticate',
 
     })
 
+app.post('/signup', (req, resp) => {
+    createUser([req.body.username, req.body.email, req.body.password])
+        .then(result => resp.status(200).json({ result }))
+        .catch(err => { resp.status(500).json({ error: err }) })
+})
+
 app.get('/api/image/:cardId', (req, resp) => {
     const s3params = {
         Bucket: 'jedimadawan',
         Key: `dixit/${req.params.cardId}.jpg`,
     };
-    console.log('s3 param', s3params);
+    // console.log('s3 param', s3params);
     conns.s3.getObject(s3params, (err, result) => {
         if (err) {
             return resp.status(500).json({ error: err });
@@ -405,6 +423,97 @@ app.get('/api/image/:cardId', (req, resp) => {
         })
 
     })
+})
+
+app.get('/api/allGroupNames', (req, resp, next) => {
+    request.get({ uri: 'https://swapi.co/api/vehicles', json: true })
+        .then(result => {
+            const resultArray = result.results;
+            const compactArray = resultArray.map(e => { return { name: e.name } })
+            resp.status(200).json(compactArray);
+        })
+        .catch(err => {
+            resp.status(500).json({ error: err })
+        })
+})
+
+app.post('/api/create-group',
+    upload.single('image'),
+    (req, resp) => {
+        resp.on('finish', () => {
+            fs.unlink(req.file.path, () => { })
+        })
+        console.log('req.body>', req.body);
+        const createGroupParams = [req.body.groupName, getUniqueId(), req.file.filename];
+
+        conns.mysql.getConnection((err, conn) => {
+            if (err) {
+                console.log('Error getting SQL connection>> ', err);
+                resp.status(500).type('text/plain').send(err);
+            }
+            //transaction helps to make sure SQL data and S3 tally
+            db.startTransaction(conn)
+                .then(status => {
+                    return createGroup({ connection: status.connection, params: createGroupParams })
+                }) //pass the params
+                .then(status => {
+                    return new Promise((resolve, reject) => {
+                        fs.readFile(req.file.path, (err, imgFile) => {
+                            console.log('fs error is', err)
+                            if (err) { return reject({ connection: status.connection, error: err }) }
+                            resolve({ connection: status.connection, result: imgFile })
+                        })
+                    })
+                })
+                .then(status => {
+                    return new Promise((resolve, reject) => {
+                        console.log('imgFile is', status.result);
+                        const s3params = {
+                            Bucket: 'jedimadawan',
+                            Key: `dixit/group_profile/${req.file.filename}`,
+                            Body: status.result,
+                            ACL: 'public-read',
+                            ContentType: req.file.mimetype
+                        };
+                        conns.s3.putObject(s3params, (err, result) => {
+                            if (err) {
+                                return reject({ connection: status.connection, error: err });
+                            }
+                            console.log('ok uploadting to s3')
+                            resolve({ connection: status.connection, result: result });
+                        })
+                    })
+                })
+                // .then(db.passthru, db.logError)
+                .then(db.commit, db.rollback)
+                .then(db.passthru, db.logError)
+                .then(
+                    (status) => { resp.status(201).json({}); },
+                    (status) => { resp.status(400).json({ error: status.error }); }
+                )
+                .finally(() => { conn.release() })
+        })
+    });
+
+app.get('/api/group-profile', (req, resp) => {
+    const queryParam = req.query.groupName;
+    getGroupProfilePicName([queryParam])
+        .then(result => {
+            const filename = result[0].picture_file;
+            
+            const s3params = {
+                Bucket: 'jedimadawan',
+                Key: `dixit/group_profile/${filename}`,
+            };
+            console.log('s3 param', s3params);
+            conns.s3.getObject(s3params, (err, result) => {
+                if (err) {
+                    return resp.status(500).json({ error: err });
+                }
+                resp.redirect(301, `https://jedimadawan.sgp1.digitaloceanspaces.com/dixit/group_profile/${filename}`);
+            })
+        })
+        .catch(err => resp.status(500).json({ error: err }))
 })
 
 app.use(express.static(join(__dirname, 'public')));

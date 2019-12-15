@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { GameService } from '../services/game.service';
-import { Group } from '../models';
+// import { Group } from '../models';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment.prod';
 @Component({
   selector: 'app-group-list',
   templateUrl: './group-list.component.html',
@@ -11,6 +12,7 @@ export class GroupListComponent implements OnInit {
 
   constructor(private gameSvc: GameService, private router: Router) { }
   groups = [];
+  api_url = environment.api_url;
   ngOnInit() {
     this.gameSvc.getAllGroups()
       .then(result => {
@@ -22,7 +24,12 @@ export class GroupListComponent implements OnInit {
       })
   }
 
-  goToGroupWaiting(group) {
-    this.router.navigate([`group-waiting-room/${group.group_name}`]);
+  goToGroupRoom(group) {
+    this.router.navigate([`group-room/${group.group_name}`]);
   }
+
+  goToCreateGroup(){
+    this.router.navigate(['createGroup']);
+  }
+
 }

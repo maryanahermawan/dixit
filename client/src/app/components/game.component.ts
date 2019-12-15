@@ -41,7 +41,6 @@ export class GameComponent implements OnInit {
 
     this.gameService.listenMember(this.gameId); //update players (no. of players)
 
-    this.activeCards.forEach(e => this.gameService.getCardImage(e));
   }
 
   ngOnInit() {
@@ -50,10 +49,6 @@ export class GameComponent implements OnInit {
   getQueryParam(name) {
     var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-  }
-
-  getUniqueId() {
-    return Math.random().toString(36).substr(2, 8);
   }
 
   createPlayerAsset(gameId: string, playerId: number) {

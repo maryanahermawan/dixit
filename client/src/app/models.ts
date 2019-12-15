@@ -21,4 +21,5 @@ export interface User {
 export interface Group {
     groupName: string;
     groupMembers: User[];
+    groupId: string;
 }
